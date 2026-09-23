@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, sans-serif;
+
+  /* Color de marca: cambiar esta escala re-tematiza todo el sitio */
+  --color-brand-300: #fdba74;
+  --color-brand-400: #fb923c;
+  --color-brand-500: #f97316;
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+
+  /*
+   * Rampa neutra que depende del tema. Se lee respecto al fondo:
+   *   tone-950 = fondo de la página · tone-900 = tarjetas · tone-800/700 = bordes
+   *   tone-500/400 = texto secundario · tone-100 = texto · tone-50 = máximo contraste
+   * En modo noche coincide con la escala zinc de Tailwind; en modo día se invierte (ver abajo).
+   */
+  --color-tone-50: #fafafa;
+  --color-tone-100: #f4f4f5;
+  --color-tone-200: #e4e4e7;
+  --color-tone-300: #d4d4d8;
+  --color-tone-400: #a1a1aa;
+  --color-tone-500: #71717a;
+  --color-tone-600: #52525b;
+  --color-tone-700: #3f3f46;
+  --color-tone-800: #27272a;
+  --color-tone-900: #18181b;
+  --color-tone-950: #09090b;
+
+  --animate-fade-up: fade-up 0.45s ease-out both;
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Valores que no son utilidades de Tailwind (gráficos y sombras) */
+:root {
+  color-scheme: dark;
+  --chart-1: #3987e5;
+  --chart-1-hover: #5598e7;
+  --hero-shadow: rgba(0, 0, 0, 0.55);
+}
+
+/*
+ * Modo día. El atributo lo pone el script de index.html antes de pintar (sin parpadeo)
+ * y luego el menú de tema (components/ThemeMenu.jsx).
+ */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-tone-50: #09090b;
+  --color-tone-100: #18181b;
+  --color-tone-200: #27272a;
+  --color-tone-300: #3f3f46;
+  --color-tone-400: #52525b;
+  --color-tone-500: #71717a;
+  --color-tone-600: #a1a1aa;
+  --color-tone-700: #d4d4d8;
+  --color-tone-800: #e4e4e7;
+  --color-tone-900: #ffffff;
+  --color-tone-950: #f6f6f7;
+
+  /* Los tonos claros pensados para fondo oscuro se oscurecen para que se lean sobre blanco */
+  --color-brand-300: #c2410c;
+  --color-brand-400: #c2410c;
+  --color-emerald-300: #047857;
+  --color-emerald-400: #059669;
+  --color-red-300: #b91c1c;
+  --color-red-400: #dc2626;
+  --color-amber-200: #92400e;
+  --color-amber-300: #b45309;
+  --color-sky-400: #0284c7;
+
+  --chart-1: #2a78d6;
+  --chart-1-hover: #256abf;
+  --hero-shadow: rgba(24, 24, 27, 0.22);
+}
+
+@layer base {
+  body {
+    @apply bg-tone-950 font-sans text-tone-100 antialiased transition-colors duration-200;
+  }
+  ::selection {
+    @apply bg-brand-500/30;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  /* El texto de los botones naranjas es oscuro en ambos temas */
+  .btn-primary {
+    @apply bg-brand-500 text-zinc-950 hover:bg-brand-400;
+  }
+  .btn-secondary {
+    @apply border border-tone-700 bg-tone-900 text-tone-100 hover:border-tone-500 hover:bg-tone-800;
+  }
+  .btn-ghost {
+    @apply text-tone-300 hover:bg-tone-800/70 hover:text-tone-50;
+  }
+  .card {
+    @apply rounded-2xl border border-tone-800 bg-tone-900/60;
+  }
+  .input {
+    @apply w-full rounded-xl border border-tone-800 bg-tone-900 px-3.5 py-2.5 text-sm text-tone-100 placeholder:text-tone-500
+      focus:border-brand-500 focus:ring-2 focus:ring-brand-500/25 focus:outline-none;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-tone-300;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-tone-700/80 bg-tone-800/60 px-2.5 py-0.5 text-xs font-medium text-tone-300;
+  }
+  .eyebrow {
+    @apply text-xs font-semibold tracking-[0.18em] text-brand-400 uppercase;
+  }
+}
