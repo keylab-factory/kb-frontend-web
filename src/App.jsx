@@ -11,6 +11,7 @@ import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx';
 import OrderConfirmation from './pages/OrderConfirmation.jsx';
 import Market from './pages/Market.jsx';
+import LayoutGuide from './pages/LayoutGuide.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 function ScrollToTop() {
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/pedido/:id" element={<OrderConfirmation />} />
           <Route path="/comparador" element={<Market />} />
+          <Route path="/layouts" element={<LayoutGuide />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

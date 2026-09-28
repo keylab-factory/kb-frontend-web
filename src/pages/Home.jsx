@@ -8,6 +8,7 @@ import ProductCard from '../components/ProductCard.jsx';
 import { CardSkeleton, ErrorState, SectionHeading } from '../components/ui.jsx';
 import { ArrowRightIcon, ChartIcon, CheckIcon, ShieldIcon, TruckIcon, WrenchIcon } from '../components/icons.jsx';
 import { formatCOP } from '../utils/format.js';
+import { removedKeys } from '../data/layouts.js';
 
 // Colorway de respaldo mientras carga el catálogo
 const FALLBACK = {
@@ -37,6 +38,9 @@ const PERKS = [
   { icon: WrenchIcon, title: 'Lubricado a mano', text: 'Los teclados armados salen afinados de fábrica.' },
   { icon: ShieldIcon, title: 'Garantía de 1 año', text: 'Cambiamos cualquier pieza defectuosa.' },
 ];
+
+// Lo que pierde un 75 % al pasar a 65 %: la fila de funciones
+const FROM_75_TO_65 = removedKeys('75%', '65%');
 
 const BUILD_STEPS = ['Elige el layout', 'Escoge un case', 'Suma PCB y plate', 'Decide los switches', 'Viste con keycaps', 'Ajusta los estabilizadores'];
 
@@ -207,6 +211,29 @@ export default function Home() {
           </div>
           <KeyboardPreview layout="75%" caseColor="#5b5f66" blank switchColor="#f472b6" className="w-full" title="Build en progreso" />
         </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+        <Link to="/layouts" className="group card grid items-center gap-6 p-6 transition-colors hover:border-tone-600 sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div>
+            <p className="eyebrow">Guía de layouts</p>
+            <h2 className="mt-2 font-display text-2xl font-bold">¿40 %, 65 %, TKL o full-size? ¿Cuál es la diferencia?</h2>
+            <p className="mt-2 text-sm text-tone-400">
+              Siete tamaños, del 40 % al 100 %. Mira exactamente qué teclas desaparecen en cada uno y para quién está pensado antes de elegir.
+            </p>
+            <span className="btn btn-secondary mt-5 group-hover:border-tone-500">
+              Comparar layouts <ArrowRightIcon className="h-4 w-4" />
+            </span>
+          </div>
+          <KeyboardPreview
+            layout="75%"
+            caseColor="#3f3f46"
+            colors={{ alpha: '#d4d4d8', mod: '#8b8b94', accent: '#8b8b94', highlight: '#ef4444' }}
+            highlight={FROM_75_TO_65}
+            className="w-full"
+            title="Teclas de un 75 % que no tiene un 65 %: la fila de funciones"
+          />
+        </Link>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">

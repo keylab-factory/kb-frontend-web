@@ -7,6 +7,7 @@ import ThemeMenu from './ThemeMenu.jsx';
 const LINKS = [
   { to: '/tienda', label: 'Tienda' },
   { to: '/armar', label: 'Arma tu teclado' },
+  { to: '/layouts', label: 'Layouts' },
   { to: '/comparador', label: 'Comparador' },
 ];
 

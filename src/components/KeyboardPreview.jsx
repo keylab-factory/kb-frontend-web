@@ -6,19 +6,19 @@ const U = 40; // tamaño de 1u en unidades del SVG
 const PAD = 0.5; // borde del case alrededor de las teclas, en u
 const KEY_GAP = 0.08;
 
-const DEFAULT_COLORS = { alpha: '#e4e4e7', mod: '#71717a', accent: '#f97316' };
+const DEFAULT_COLORS = { alpha: '#e4e4e7', mod: '#71717a', accent: '#f97316', highlight: '#ef4444' };
 
-function Keycap({ k, colors, legends }) {
+function Keycap({ k, colors, legends, marked, dimmed }) {
   const x = (k.x + PAD + KEY_GAP / 2) * U;
   const y = (k.y + PAD + KEY_GAP / 2) * U;
   const w = (k.w - KEY_GAP) * U;
   const h = (k.h - KEY_GAP) * U;
-  const base = (k.kind === 'space' ? colors.space : colors[k.kind]) ?? colors.alpha;
+  const base = marked ? colors.highlight : (k.kind === 'space' ? colors.space : colors[k.kind]) ?? colors.alpha;
   const inset = U * 0.1;
   const legendColor = k.kind === 'alpha' || k.kind === 'space' ? colors.legend : colors.modLegend;
 
   return (
-    <g>
+    <g opacity={dimmed ? 0.35 : 1}>
       <rect x={x} y={y} width={w} height={h} rx={U * 0.13} fill={shade(base, -0.28)} />
       <rect x={x + inset} y={y + inset * 0.45} width={w - inset * 2} height={h - inset * 1.9} rx={U * 0.1} fill={base} />
       {legends && k.label && (
@@ -58,8 +58,10 @@ function SwitchSlot({ k, caseColor, switchColor }) {
 /**
  * Dibuja un teclado en SVG a partir del layout y la paleta de colores.
  * Si no hay keycaps (`blank`), muestra la plate con los switches.
+ * `highlight` (Set de índices de teclas) pinta esas teclas con `colors.highlight`
+ * y atenúa las demás: sirve para mostrar qué se pierde al cambiar de layout.
  */
-function KeyboardPreview({ layout = '65%', caseColor = '#3f3f46', colors, blank = false, switchColor, legends = false, className = '', title }) {
+function KeyboardPreview({ layout = '65%', caseColor = '#3f3f46', colors, blank = false, switchColor, legends = false, highlight, className = '', title }) {
   const gradientId = `case-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const geo = buildLayout(layout);
   const width = (geo.width + PAD * 2) * U;
@@ -89,7 +91,7 @@ function KeyboardPreview({ layout = '65%', caseColor = '#3f3f46', colors, blank 
         blank ? (
           <SwitchSlot key={i} k={key} caseColor={caseColor} switchColor={switchColor} />
         ) : (
-          <Keycap key={i} k={key} colors={palette} legends={legends} />
+          <Keycap key={i} k={key} colors={palette} legends={legends} marked={highlight?.has(i)} dimmed={highlight?.size > 0 && !highlight.has(i)} />
         ),
       )}
     </svg>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { api } from '../api.js';
 import { useApi } from '../hooks/useApi.js';
 import { useCart } from '../context/CartContext.jsx';
@@ -103,6 +103,14 @@ function OptionCard({ product, selected, onSelect, conflict, priceNote }) {
 
 function LayoutStep({ layouts, value, onChange }) {
   return (
+    <>
+    <p className="mb-4 text-sm text-tone-400">
+      ¿No sabes cuál elegir?{' '}
+      <Link to="/layouts" className="font-semibold text-brand-400 underline-offset-2 hover:underline">
+        Mira qué teclas cambian entre cada layout
+      </Link>
+      .
+    </p>
     <div className="grid gap-4 sm:grid-cols-2">
       {layouts.map((l) => {
         const active = value === l.id;
@@ -124,6 +132,7 @@ function LayoutStep({ layouts, value, onChange }) {
         );
       })}
     </div>
+    </>
   );
 }
 
