@@ -1,10 +1,13 @@
 import { Link } from 'react-router';
+import { api } from '../api.js';
+import { useApi } from '../hooks/useApi.js';
 import { useFx } from '../hooks/useFx.js';
 import { formatCOP, formatShortDate } from '../utils/format.js';
 import { Logo } from './icons.jsx';
 
 export default function Footer() {
   const { data: fx } = useFx();
+  const { data: config } = useApi(() => api.orderConfig(), []);
 
   return (
     <footer className="mt-24 border-t border-tone-800/80">
@@ -24,7 +27,13 @@ export default function Footer() {
               {fx.date && <span className="text-tone-500">· {formatShortDate(fx.date)}</span>}
             </p>
           )}
-          <p className="mt-4 text-xs text-tone-500">Proyecto académico: los pagos son simulados y no se cobra nada.</p>
+          {config && (
+            <p className="mt-4 text-xs text-tone-500">
+              {config.onlinePayments
+                ? 'Pagos seguros con Wompi (Bancolombia): PSE, Nequi y tarjetas, o contra entrega.'
+                : 'Los pagos en línea aún no están activos: los pedidos no generan cobros.'}
+            </p>
+          )}
         </div>
         <div>
           <h3 className="text-sm font-semibold text-tone-200">Tienda</h3>

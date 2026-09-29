@@ -50,6 +50,8 @@ export const api = {
   createOrder: (order) => request('/orders', send('POST', order)),
   // Sin sesión, un pedido solo se abre con la clave que trae el enlace de confirmación
   order: (id, key) => request(`/orders/${encodeURIComponent(id)}${query({ key })}`, { auth: true }),
+  // Enlace nuevo al Web Checkout de Wompi para un pedido que sigue esperando el pago
+  orderPayment: (id, key) => request(`/orders/${encodeURIComponent(id)}/payment${query({ key })}`, { auth: true }),
   fx: () => request('/fx'),
   market: () => request('/market'),
   marketProducts: (params) => request(`/market/products${query(params)}`),

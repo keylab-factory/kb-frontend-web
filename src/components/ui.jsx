@@ -39,8 +39,9 @@ export function StockBadge({ stock }) {
 
 // El estado siempre va con su texto, no solo con el color
 const ORDER_STATUS = {
+  pendiente_pago: { label: 'Pago pendiente', className: 'border-amber-500/30 bg-amber-500/10 text-amber-300' },
   confirmado: { label: 'Confirmado', className: 'border-sky-500/30 bg-sky-500/10 text-sky-300' },
-  enviado: { label: 'Enviado', className: 'border-amber-500/30 bg-amber-500/10 text-amber-300' },
+  enviado: { label: 'Enviado', className: 'border-violet-500/30 bg-violet-500/10 text-violet-300' },
   entregado: { label: 'Entregado', className: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' },
   cancelado: { label: 'Cancelado', className: 'border-red-500/30 bg-red-500/10 text-red-300' },
 };

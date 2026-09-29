@@ -68,6 +68,11 @@ export default function Checkout() {
         items: items.map((i) => ({ productId: i.id, quantity: i.quantity })),
       });
       clear();
+      if (order.payment?.checkoutUrl) {
+        // Pago en línea: el stock ya quedó apartado; Wompi devuelve al cliente a su pedido
+        window.location.assign(order.payment.checkoutUrl);
+        return;
+      }
       // La clave va en el enlace: es lo que permite volver a ver el pedido sin sesión
       navigate(`/pedido/${order.id}?clave=${encodeURIComponent(order.accessKey)}`, { replace: true });
     } catch (err) {
@@ -164,7 +169,9 @@ export default function Checkout() {
             {errors.paymentMethod && <p className="mt-2 text-xs text-red-400">{errors.paymentMethod}</p>}
             <p className="mt-4 flex items-start gap-2 text-xs text-tone-500">
               <ShieldIcon className="h-4 w-4 shrink-0" />
-              Tienda de demostración: no se piden datos de tarjeta ni se realiza ningún cobro.
+              {config?.onlinePayments
+                ? 'PSE y tarjeta se pagan en Wompi, la pasarela de Bancolombia (también acepta Nequi). KeyLab nunca ve los datos de tu tarjeta.'
+                : 'Los pagos en línea aún no están activos: el pedido se registra sin ningún cobro.'}
             </p>
           </section>
         </div>
@@ -204,7 +211,9 @@ export default function Checkout() {
           )}
 
           <button type="submit" className="btn btn-primary mt-5 w-full py-3" disabled={submitting}>
-            {submitting ? 'Procesando...' : `Confirmar pedido · ${formatCOP(subtotal + shipping)}`}
+            {submitting
+              ? 'Procesando...'
+              : `${config?.onlinePayments && paymentMethod !== 'contraentrega' ? 'Continuar al pago' : 'Confirmar pedido'} · ${formatCOP(subtotal + shipping)}`}
           </button>
           <Link to="/carrito" className="mt-3 block text-center text-sm text-tone-400 hover:text-tone-50">
             Volver al carrito

@@ -14,6 +14,20 @@ npm run build    # compila a dist/
 
 Necesita el backend corriendo: [`kb-backend-services`](https://github.com/keylab-factory/kb-backend-services), un repositorio privado de la organización. El frontend habla **solo con el API Gateway**, nunca con un microservicio directamente. Por eso no se enteró de la migración a microservicios: la API pública es la misma de V1.
 
+## Despliegue
+
+En **Cloudflare Pages**, conectado a este repositorio:
+
+- **Build:** comando `npm run build`, salida `dist`.
+- **Variables:** `NODE_VERSION=24`, `VITE_API_URL=<gateway>/api` y `VITE_CLERK_PUBLISHABLE_KEY`.
+- **Rutas:** [`public/_redirects`](public/_redirects) envía cualquier ruta a `index.html`, para que `/pedido/...` o `/admin` funcionen al recargar.
+
+La guía completa, con el backend, está en `docs/DESPLIEGUE.md` de kb-backend-services.
+
+## Pagos
+
+Con Wompi activo en el backend, PSE y tarjeta llevan al Web Checkout de Wompi y vuelven a la página del pedido. Esa página se actualiza sola hasta que llega la confirmación, y permite reintentar un pago rechazado. El pedido solo se da por pagado cuando el backend recibe el aviso firmado de Wompi. Sin Wompi, la tienda dice que no se cobra nada.
+
 ## Variables de entorno
 
 | Variable | Por defecto | Uso |

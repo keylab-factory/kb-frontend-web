@@ -21,11 +21,20 @@ const PRODUCT_TABS = [
   { id: 'archived', label: 'Archivados' },
 ];
 const ORDER_TABS = [
+  { id: 'pendiente_pago', label: 'Pago pendiente' },
   { id: 'confirmado', label: 'Por enviar' },
   { id: 'enviado', label: 'Enviados' },
   { id: 'entregado', label: 'Entregados' },
   { id: 'cancelado', label: 'Cancelados' },
 ];
+
+// Estado del cobro en línea (Wompi), con el color que ayuda a leerlo de un vistazo
+const PAYMENT_LABELS = {
+  aprobado: ['Pagado en línea', 'text-emerald-300'],
+  pendiente: ['Esperando pago', 'text-amber-300'],
+  rechazado: ['Pago rechazado', 'text-red-300'],
+  vencido: ['Venció sin pagar', 'text-tone-400'],
+};
 
 // Espera a que se deje de escribir antes de buscar
 function useDebounced(value, ms = 300) {
@@ -253,6 +262,7 @@ function OrderRow({ order, allowed, onChanged }) {
           <span className="text-xs text-tone-500">
             {order.paymentLabel} · {units} {units === 1 ? 'unidad' : 'unidades'}
           </span>
+          {PAYMENT_LABELS[order.paymentStatus] && <span className={`block text-xs font-medium ${PAYMENT_LABELS[order.paymentStatus][1]}`}>{PAYMENT_LABELS[order.paymentStatus][0]}</span>}
         </p>
       </div>
 
