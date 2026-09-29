@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.log
+
+# Variables locales: se versiona .env.example, nunca .env.local
+.env
+.env.local
+.env.*.local
