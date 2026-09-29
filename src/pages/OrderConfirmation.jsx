@@ -2,7 +2,7 @@ import { Link, useParams } from 'react-router';
 import { api } from '../api.js';
 import { useApi } from '../hooks/useApi.js';
 import { useSession } from '../auth/session.js';
-import { ErrorState } from '../components/ui.jsx';
+import { ErrorState, OrderStatusBadge } from '../components/ui.jsx';
 import { CheckIcon } from '../components/icons.jsx';
 import { formatCOP, formatDate } from '../utils/format.js';
 
@@ -34,7 +34,7 @@ export default function OrderConfirmation() {
         <p className="mt-2 text-tone-400">
           Pedido <span className="font-mono font-semibold text-tone-200">{order.id}</span> · {formatDate(order.createdAt)}
         </p>
-        <p className="mt-1 text-sm text-tone-500">Te enviaremos la confirmación a {order.customer.email}.</p>
+        <p className="mt-1 text-sm text-tone-500">Guarda el número de pedido: con él consultas aquí su estado y la guía de envío.</p>
       </div>
 
       <section className="card mt-10 p-5 sm:p-6">
@@ -73,16 +73,22 @@ export default function OrderConfirmation() {
 
       <section className="card mt-6 grid gap-6 p-5 text-sm sm:grid-cols-2 sm:p-6">
         <div>
-          <h2 className="font-semibold">Entrega</h2>
+          <h2 className="flex items-center gap-2 font-semibold">
+            Entrega <OrderStatusBadge status={order.status} />
+          </h2>
           <p className="mt-2 text-tone-300">{order.customer.name}</p>
           <p className="text-tone-400">{order.customer.address}</p>
           <p className="text-tone-400">{order.customer.city}</p>
           <p className="text-tone-400">{order.customer.phone}</p>
+          {order.trackingCode && (
+            <p className="mt-2 text-tone-300">
+              Guía de envío: <span className="font-mono font-semibold">{order.trackingCode}</span>
+            </p>
+          )}
         </div>
         <div>
           <h2 className="font-semibold">Pago</h2>
           <p className="mt-2 text-tone-300">{order.paymentLabel}</p>
-          <p className="mt-1 inline-flex rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-300 capitalize">{order.status}</p>
           <p className="mt-2 text-xs text-tone-500">Pago simulado: no se realizó ningún cobro.</p>
         </div>
       </section>

@@ -37,6 +37,19 @@ export function StockBadge({ stock }) {
   return <span className="chip border-emerald-500/30 bg-emerald-500/10 text-emerald-300">En stock</span>;
 }
 
+// El estado siempre va con su texto, no solo con el color
+const ORDER_STATUS = {
+  confirmado: { label: 'Confirmado', className: 'border-sky-500/30 bg-sky-500/10 text-sky-300' },
+  enviado: { label: 'Enviado', className: 'border-amber-500/30 bg-amber-500/10 text-amber-300' },
+  entregado: { label: 'Entregado', className: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' },
+  cancelado: { label: 'Cancelado', className: 'border-red-500/30 bg-red-500/10 text-red-300' },
+};
+
+export function OrderStatusBadge({ status }) {
+  const s = ORDER_STATUS[status] ?? { label: status, className: 'border-tone-700 text-tone-300' };
+  return <span className={`chip ${s.className}`}>{s.label}</span>;
+}
+
 export function ErrorState({ error, onRetry, title = 'Algo salió mal' }) {
   return (
     <div className="card flex flex-col items-center px-6 py-14 text-center">

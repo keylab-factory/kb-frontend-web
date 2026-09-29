@@ -102,7 +102,7 @@ export default function LocalSession({ onChange }) {
       provider: 'local',
       loaded: true,
       signedIn: Boolean(identity),
-      user: identity ? { id: identity.sub, name: identity.name, email: identity.email, imageUrl: null } : null,
+      user: identity ? { id: identity.sub, name: identity.name, email: identity.email, imageUrl: null, role: identity.role ?? null } : null,
       getToken,
       signIn: () => setDialog(true),
       signOut: async () => {
@@ -121,7 +121,7 @@ export default function LocalSession({ onChange }) {
   async function signIn({ name, email }) {
     const who = { name: name.trim(), email: email.trim().toLowerCase() };
     await fetchToken(who);
-    const next = { ...who, sub: cache.current.sub };
+    const next = { ...who, sub: cache.current.sub, role: cache.current.role ?? null };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     } catch {

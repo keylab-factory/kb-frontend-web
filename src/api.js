@@ -67,4 +67,10 @@ export const api = {
   builds: () => request('/builds', { auth: true }),
   saveBuild: (build) => request('/builds', send('POST', build)),
   deleteBuild: (id) => request(`/builds/${encodeURIComponent(id)}`, { method: 'DELETE', auth: true }),
+
+  // Administración (requieren una sesión con rol admin)
+  adminProducts: (params) => request(`/admin/products${query(params)}`, { auth: true }),
+  adminUpdateProduct: (id, data) => request(`/admin/products/${encodeURIComponent(id)}`, send('PATCH', data)),
+  adminOrders: (params) => request(`/admin/orders${query(params)}`, { auth: true }),
+  adminUpdateOrder: (id, data) => request(`/admin/orders/${encodeURIComponent(id)}`, send('PATCH', data)),
 };

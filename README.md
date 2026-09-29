@@ -40,6 +40,7 @@ Las páginas usan `useSession()` ([`src/auth/session.js`](src/auth/session.js)) 
 | `/layouts` | Guía "¿Cuál es la diferencia?": comparador entre layouts y qué teclas se pierden en cada paso |
 | `/carrito`, `/checkout`, `/pedido/:id` | Compra (con sesión, el checkout usa las direcciones guardadas) |
 | `/cuenta` | Mi cuenta: pedidos, direcciones, builds guardados y datos personales |
+| `/admin` | Panel de administración (solo rol admin): publicar borradores, precio y stock, y enviar, entregar o cancelar pedidos. Su código se descarga aparte |
 | `/comparador` | Precios de tiendas internacionales (datos que publica la app de escritorio) |
 
 Las ilustraciones de teclados son SVG generados a partir de la geometría de cada layout ([`src/data/layouts.js`](src/data/layouts.js)), sin fotografías. `removedKeys(desde, hasta)` calcula qué teclas desaparecen entre dos layouts para la guía.

@@ -21,6 +21,7 @@ function Sync({ onChange }) {
               name: user.fullName ?? user.firstName ?? '',
               email: user.primaryEmailAddress?.emailAddress ?? null,
               imageUrl: user.imageUrl,
+              role: user.publicMetadata?.role ?? null,
             }
           : null,
       getToken: () => getToken(),

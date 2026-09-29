@@ -7,7 +7,8 @@ import { createContext, useContext } from 'react';
  *   provider   'clerk' | 'local' | null (sin cuentas configuradas)
  *   loaded     false mientras el proveedor averigua si hay sesión
  *   signedIn   true con una sesión válida
- *   user       { id, name, email, imageUrl } o null
+ *   user       { id, name, email, imageUrl, role } o null. role = 'admin' muestra el
+ *              panel; es solo para la interfaz: el backend verifica el rol en el token
  *   getToken   () => Promise<string|null>, el JWT que se manda al backend
  *   signIn / signOut / openProfile
  */

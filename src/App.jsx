@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
@@ -14,6 +14,9 @@ import Market from './pages/Market.jsx';
 import LayoutGuide from './pages/LayoutGuide.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Account from './pages/Account.jsx';
+
+// El panel solo lo usan los administradores: los clientes no descargan su código
+const Admin = lazy(() => import('./pages/Admin.jsx'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -42,6 +45,14 @@ export default function App() {
           <Route path="/comparador" element={<Market />} />
           <Route path="/layouts" element={<LayoutGuide />} />
           <Route path="/cuenta" element={<Account />} />
+          <Route
+            path="/admin"
+            element={
+              <Suspense fallback={<div className="mx-auto mt-16 h-96 max-w-5xl animate-pulse rounded-2xl bg-tone-900" />}>
+                <Admin />
+              </Suspense>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

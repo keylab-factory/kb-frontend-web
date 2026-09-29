@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext.jsx';
 import { CartIcon, CloseIcon, Logo, MenuIcon } from './icons.jsx';
 import ThemeMenu from './ThemeMenu.jsx';
 import AccountButton from './AccountButton.jsx';
+import { useSession } from '../auth/session.js';
 
 const LINKS = [
   { to: '/tienda', label: 'Tienda' },
@@ -17,8 +18,10 @@ const linkClass = ({ isActive }) =>
 
 export default function Navbar() {
   const { count } = useCart();
+  const session = useSession();
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const links = session.user?.role === 'admin' ? [...LINKS, { to: '/admin', label: 'Admin' }] : LINKS;
 
   useEffect(() => {
     setOpen(false);
@@ -33,7 +36,7 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-1 md:flex">
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <NavLink key={l.to} to={l.to} className={linkClass}>
               {l.label}
             </NavLink>
@@ -70,7 +73,7 @@ export default function Navbar() {
       {open && (
         <div className="border-t border-tone-800 px-4 py-3 md:hidden">
           <div className="flex flex-col gap-1">
-            {LINKS.map((l) => (
+            {links.map((l) => (
               <NavLink key={l.to} to={l.to} className={linkClass}>
                 {l.label}
               </NavLink>

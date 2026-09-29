@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router';
 import { api } from '../api.js';
 import { useSession } from '../auth/session.js';
 import { useApi } from '../hooks/useApi.js';
-import { EmptyState, ErrorState } from '../components/ui.jsx';
+import { EmptyState, ErrorState, OrderStatusBadge } from '../components/ui.jsx';
 import { AlertIcon, TrashIcon, UserIcon } from '../components/icons.jsx';
 import { formatCOP, formatDate, plural } from '../utils/format.js';
 
@@ -64,7 +64,9 @@ function OrdersTab() {
               </div>
               <div className="text-right">
                 <p className="font-bold tabular-nums">{formatCOP(order.total)}</p>
-                <p className="mt-1 inline-flex rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-300 capitalize">{order.status}</p>
+                <p className="mt-1">
+                  <OrderStatusBadge status={order.status} />
+                </p>
               </div>
             </Link>
           </li>
