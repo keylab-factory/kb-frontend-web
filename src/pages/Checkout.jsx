@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router';
 import { api } from '../api.js';
 import { useApi } from '../hooks/useApi.js';
 import { useCart } from '../context/CartContext.jsx';
+import { useSession } from '../auth/session.js';
 import { AlertIcon, ShieldIcon } from '../components/icons.jsx';
 import { formatCOP } from '../utils/format.js';
 import { shippingFor } from '../utils/shipping.js';
@@ -15,17 +16,43 @@ const FIELDS = [
   { name: 'city', label: 'Ciudad', autoComplete: 'address-level2' },
 ];
 
+const fromAddress = (a) => ({ address: [a.line1, a.line2].filter(Boolean).join(', '), city: `${a.city}, ${a.department}` });
+
 export default function Checkout() {
   const navigate = useNavigate();
+  const session = useSession();
   const { items, subtotal, clear } = useCart();
   const { data: config } = useApi(() => api.orderConfig(), []);
+  const { data: profile } = useApi(() => (session.signedIn ? api.me() : Promise.resolve(null)), [session.signedIn]);
   const [customer, setCustomer] = useState({ name: '', email: '', phone: '', address: '', city: '' });
+  const [addressId, setAddressId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('pse');
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Con sesión se llenan los datos de la cuenta y la dirección predeterminada,
+  // sin pisar lo que el cliente ya haya escrito
+  const [prefilledFor, setPrefilledFor] = useState(null);
+  if (profile && prefilledFor !== profile.id) {
+    setPrefilledFor(profile.id);
+    const main = profile.addresses.find((a) => a.isDefault) ?? profile.addresses[0];
+    const saved = {
+      name: profile.name ?? session.user?.name ?? '',
+      email: profile.email ?? session.user?.email ?? '',
+      phone: main?.phone ?? profile.phone ?? '',
+      ...(main && fromAddress(main)),
+    };
+    setCustomer((c) => Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v || saved[k] || ''])));
+    if (main) setAddressId(main.id);
+  }
+
   if (items.length === 0 && !submitting) return <Navigate to="/carrito" replace />;
+
+  function chooseAddress(a) {
+    setAddressId(a.id);
+    setCustomer((c) => ({ ...c, name: a.recipient, phone: a.phone, ...fromAddress(a) }));
+  }
 
   const shipping = shippingFor(subtotal, config?.shipping);
 
@@ -57,8 +84,40 @@ export default function Checkout() {
 
       <form onSubmit={handleSubmit} noValidate className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-8">
+          {session.provider && session.loaded && !session.signedIn && (
+            <div className="card flex flex-wrap items-center justify-between gap-3 p-4 text-sm">
+              <p className="text-tone-300">¿Tienes cuenta? Usa tus direcciones guardadas y consulta este pedido después.</p>
+              <button type="button" className="btn btn-secondary text-sm" onClick={session.signIn}>
+                Iniciar sesión
+              </button>
+            </div>
+          )}
+
           <section className="card p-5 sm:p-6">
             <h2 className="font-semibold">Datos de entrega</h2>
+            {profile?.addresses.length > 0 && (
+              <fieldset className="mt-4">
+                <legend className="label">Tus direcciones</legend>
+                <div className="flex flex-wrap gap-2">
+                  {profile.addresses.map((a) => (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() => chooseAddress(a)}
+                      aria-pressed={addressId === a.id}
+                      className={`rounded-xl border px-3 py-2 text-left text-sm transition-colors ${
+                        addressId === a.id ? 'border-brand-500 bg-brand-500/5' : 'border-tone-800 hover:border-tone-600'
+                      }`}
+                    >
+                      <span className="font-medium">{a.label}</span>
+                      <span className="block text-xs text-tone-400">
+                        {a.line1}, {a.city}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {FIELDS.map((f) => (
                 <div key={f.name} className={f.span === 2 ? 'sm:col-span-2' : ''}>

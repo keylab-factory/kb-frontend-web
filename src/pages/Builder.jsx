@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { api } from '../api.js';
+import { useSession } from '../auth/session.js';
 import { useApi } from '../hooks/useApi.js';
 import { useCart } from '../context/CartContext.jsx';
 import KeyboardPreview from '../components/KeyboardPreview.jsx';
@@ -136,10 +137,81 @@ function LayoutStep({ layouts, value, onChange }) {
   );
 }
 
+// Guarda el build en la cuenta para retomarlo desde otro dispositivo
+function SaveBuild({ build }) {
+  const session = useSession();
+  const [name, setName] = useState(null); // null = formulario cerrado
+  const [status, setStatus] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  if (!session.provider || !session.loaded) return null;
+  if (!session.signedIn) {
+    return (
+      <button type="button" className="mt-3 w-full text-center text-sm text-tone-400 hover:text-tone-50" onClick={session.signIn}>
+        Inicia sesión para guardar este build
+      </button>
+    );
+  }
+
+  async function save(event) {
+    event.preventDefault();
+    setBusy(true);
+    setStatus(null);
+    try {
+      // Se quitan las ranuras vacías: el servidor solo acepta ids de producto
+      const parts = Object.fromEntries(Object.entries(build.parts).filter(([, id]) => id));
+      await api.saveBuild({ name, layout: build.layout, parts });
+      setStatus({ ok: true, message: 'Guardado en tu cuenta.' });
+      setName(null);
+    } catch (err) {
+      setStatus({ ok: false, message: err.data?.details?.name ?? err.message });
+    }
+    setBusy(false);
+  }
+
+  return (
+    <div className="mt-3">
+      {name === null ? (
+        <button type="button" className="btn btn-secondary w-full" onClick={() => { setName(`Mi ${build.layout}`); setStatus(null); }}>
+          Guardar en mi cuenta
+        </button>
+      ) : (
+        <form onSubmit={save} className="flex gap-2">
+          <label htmlFor="build-name" className="sr-only">
+            Nombre del build
+          </label>
+          <input id="build-name" className="input" maxLength={80} value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+          <button type="submit" className="btn btn-primary shrink-0" disabled={busy || !name.trim()}>
+            {busy ? 'Guardando...' : 'Guardar'}
+          </button>
+        </form>
+      )}
+      {status && (
+        <p role="status" className={`mt-2 text-center text-xs ${status.ok ? 'text-emerald-300' : 'text-red-300'}`}>
+          {status.message}{' '}
+          {status.ok && (
+            <Link to="/cuenta?tab=builds" className="underline underline-offset-2">
+              Ver mis builds
+            </Link>
+          )}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function Builder() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { addMany } = useCart();
-  const [build, setBuild] = useState(loadBuild);
+  // Un build abierto desde "Mi cuenta" llega en el estado de la navegación
+  const [build, setBuild] = useState(() => location.state?.build ?? loadBuild());
+
+  useEffect(() => {
+    // Se consume una sola vez: al recargar la página manda el progreso guardado en el navegador
+    if (location.state?.build) navigate(location.pathname, { replace: true, state: null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [stepIndex, setStepIndex] = useState(0);
   const [validation, setValidation] = useState(null);
 
@@ -371,6 +443,7 @@ export default function Builder() {
             <CartIcon className="h-5 w-5" /> Agregar build al carrito
           </button>
           {validation && !validation.valid && <p className="mt-2 text-center text-xs text-red-300">Corrige los problemas marcados para continuar.</p>}
+          <SaveBuild build={build} />
         </aside>
       </div>
     </div>

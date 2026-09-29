@@ -1,13 +1,17 @@
 import { Link, useParams } from 'react-router';
 import { api } from '../api.js';
 import { useApi } from '../hooks/useApi.js';
+import { useSession } from '../auth/session.js';
 import { ErrorState } from '../components/ui.jsx';
 import { CheckIcon } from '../components/icons.jsx';
 import { formatCOP, formatDate } from '../utils/format.js';
 
 export default function OrderConfirmation() {
   const { id } = useParams();
-  const { data: order, loading, error, reload } = useApi(() => api.order(id), [id]);
+  const session = useSession();
+  // Un pedido hecho con sesión solo se muestra con el token de su dueño: se espera a
+  // saber si hay sesión antes de pedirlo, o respondería "no encontrado"
+  const { data: order, loading, error, reload } = useApi(() => (session.loaded ? api.order(id) : new Promise(() => {})), [id, session.loaded, session.signedIn]);
 
   if (error) {
     return (
@@ -83,10 +87,15 @@ export default function OrderConfirmation() {
         </div>
       </section>
 
-      <div className="mt-8 text-center">
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link to="/tienda" className="btn btn-primary">
           Seguir comprando
         </Link>
+        {session.signedIn && (
+          <Link to="/cuenta" className="btn btn-secondary">
+            Ver mis pedidos
+          </Link>
+        )}
       </div>
     </div>
   );

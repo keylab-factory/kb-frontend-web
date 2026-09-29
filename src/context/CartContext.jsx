@@ -1,4 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { api } from '../api.js';
+import { useSession } from '../auth/session.js';
 
 const STORAGE_KEY = 'keylab.cart.v1';
 const MAX_QTY = 99;
@@ -52,9 +54,26 @@ function reducer(items, action) {
   }
 }
 
+// Trae el carrito guardado en la cuenta y devuelve las líneas que este navegador
+// no tiene. Si un producto está en ambos, gana la cantidad de este navegador.
+async function remoteOnlyLines(localItems) {
+  const remote = await api.cart();
+  const missing = remote.items.filter((r) => !localItems.some((i) => i.id === r.productId));
+  const products = await Promise.all(missing.map((r) => api.product(r.productId).catch(() => null)));
+  return missing.map((r, i) => products[i] && { product: products[i], quantity: r.quantity }).filter(Boolean);
+}
+
 export function CartProvider({ children }) {
   const [items, dispatch] = useReducer(reducer, undefined, loadCart);
   const [toast, setToast] = useState(null);
+  const session = useSession();
+  const userId = session.signedIn ? session.user?.id : null;
+  // Usuario cuyo carrito ya se fusionó: hasta entonces no se sube nada, para no
+  // pisar el carrito de la cuenta con el de este navegador.
+  const [syncedUser, setSyncedUser] = useState(null);
+  const lastUser = useRef(null);
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
 
   useEffect(() => {
     try {
@@ -63,6 +82,39 @@ export function CartProvider({ children }) {
       // Sin almacenamiento (modo privado): el carrito vive solo en memoria
     }
   }, [items]);
+
+  useEffect(() => {
+    if (!session.loaded) return undefined;
+    if (!userId) {
+      // Al cerrar sesión se vacía: el computador puede ser compartido
+      if (lastUser.current) dispatch({ type: 'clear' });
+      lastUser.current = null;
+      setSyncedUser(null);
+      return undefined;
+    }
+    lastUser.current = userId;
+    let alive = true;
+    remoteOnlyLines(itemsRef.current)
+      .then((lines) => {
+        if (!alive) return;
+        if (lines.length) dispatch({ type: 'add', lines });
+        setSyncedUser(userId);
+      })
+      .catch(() => {
+        // Sin conexión con la cuenta el carrito sigue funcionando solo en este navegador
+      });
+    return () => {
+      alive = false;
+    };
+  }, [session.loaded, userId]);
+
+  useEffect(() => {
+    if (!userId || syncedUser !== userId) return undefined;
+    const timer = setTimeout(() => {
+      api.saveCart(items.map((i) => ({ productId: i.id, quantity: i.quantity }))).catch(() => {});
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [items, userId, syncedUser]);
 
   useEffect(() => {
     if (!toast) return undefined;

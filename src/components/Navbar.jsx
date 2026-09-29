@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router';
 import { useCart } from '../context/CartContext.jsx';
 import { CartIcon, CloseIcon, Logo, MenuIcon } from './icons.jsx';
 import ThemeMenu from './ThemeMenu.jsx';
+import AccountButton from './AccountButton.jsx';
 
 const LINKS = [
   { to: '/tienda', label: 'Tienda' },
@@ -41,6 +42,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-1">
           <ThemeMenu />
+          <AccountButton />
           <Link
             to="/carrito"
             className="relative rounded-lg p-2.5 text-tone-300 transition-colors hover:bg-tone-800 hover:text-tone-50"

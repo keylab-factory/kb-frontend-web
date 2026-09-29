@@ -14,6 +14,12 @@ export const CartIcon = (p) => (
     <path d="M2.5 3h2.6l2.4 12.2a1.6 1.6 0 0 0 1.6 1.3h8.7a1.6 1.6 0 0 0 1.6-1.2L21 7.5H6" />
   </Icon>
 );
+export const UserIcon = (p) => (
+  <Icon {...p}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </Icon>
+);
 export const MenuIcon = (p) => (
   <Icon {...p}>
     <path d="M4 6h16M4 12h16M4 18h16" />

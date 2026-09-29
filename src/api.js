@@ -8,12 +8,20 @@ export class ApiError extends Error {
   }
 }
 
-async function request(path, options = {}) {
+// Lo registra AuthProvider cuando hay sesión; devuelve el JWT vigente del usuario
+let tokenGetter = null;
+export function setTokenGetter(fn) {
+  tokenGetter = fn;
+}
+
+async function request(path, { auth = false, ...options } = {}) {
+  // Solo las rutas de cuenta y pedidos llevan el token: el catálogo es público
+  const token = auth && tokenGetter ? await tokenGetter().catch(() => null) : null;
   let res;
   try {
     res = await fetch(BASE + path, {
       ...options,
-      headers: { 'Content-Type': 'application/json', ...options.headers },
+      headers: { 'Content-Type': 'application/json', ...(token && { Authorization: `Bearer ${token}` }), ...options.headers },
     });
   } catch {
     throw new ApiError('No se pudo conectar con el servidor. ¿Está corriendo la API?', 0);
@@ -29,6 +37,8 @@ function query(params = {}) {
   return clean.length ? `?${new URLSearchParams(clean)}` : '';
 }
 
+const send = (method, body) => ({ method, body: JSON.stringify(body), auth: true });
+
 export const api = {
   categories: () => request('/categories'),
   layouts: () => request('/layouts'),
@@ -36,9 +46,25 @@ export const api = {
   product: (id) => request(`/products/${encodeURIComponent(id)}`),
   validateBuild: (build) => request('/builds/validate', { method: 'POST', body: JSON.stringify(build) }),
   orderConfig: () => request('/orders/config'),
-  createOrder: (order) => request('/orders', { method: 'POST', body: JSON.stringify(order) }),
-  order: (id) => request(`/orders/${encodeURIComponent(id)}`),
+  // Con sesión, el pedido queda asociado a la cuenta
+  createOrder: (order) => request('/orders', send('POST', order)),
+  order: (id) => request(`/orders/${encodeURIComponent(id)}`, { auth: true }),
   fx: () => request('/fx'),
   market: () => request('/market'),
   marketProducts: (params) => request(`/market/products${query(params)}`),
+
+  departments: () => request('/users/departments'),
+
+  // Cuenta (requieren sesión)
+  me: () => request('/users/me', { auth: true }),
+  updateMe: (data) => request('/users/me', send('PATCH', data)),
+  createAddress: (data) => request('/users/me/addresses', send('POST', data)),
+  updateAddress: (id, data) => request(`/users/me/addresses/${encodeURIComponent(id)}`, send('PATCH', data)),
+  deleteAddress: (id) => request(`/users/me/addresses/${encodeURIComponent(id)}`, { method: 'DELETE', auth: true }),
+  myOrders: () => request('/orders', { auth: true }),
+  cart: () => request('/cart', { auth: true }),
+  saveCart: (items) => request('/cart', send('PUT', { items })),
+  builds: () => request('/builds', { auth: true }),
+  saveBuild: (build) => request('/builds', send('POST', build)),
+  deleteBuild: (id) => request(`/builds/${encodeURIComponent(id)}`, { method: 'DELETE', auth: true }),
 };

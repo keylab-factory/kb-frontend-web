@@ -13,6 +13,7 @@ import OrderConfirmation from './pages/OrderConfirmation.jsx';
 import Market from './pages/Market.jsx';
 import LayoutGuide from './pages/LayoutGuide.jsx';
 import NotFound from './pages/NotFound.jsx';
+import Account from './pages/Account.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/pedido/:id" element={<OrderConfirmation />} />
           <Route path="/comparador" element={<Market />} />
           <Route path="/layouts" element={<LayoutGuide />} />
+          <Route path="/cuenta" element={<Account />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
