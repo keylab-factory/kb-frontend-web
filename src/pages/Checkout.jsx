@@ -68,7 +68,8 @@ export default function Checkout() {
         items: items.map((i) => ({ productId: i.id, quantity: i.quantity })),
       });
       clear();
-      navigate(`/pedido/${order.id}`, { replace: true });
+      // La clave va en el enlace: es lo que permite volver a ver el pedido sin sesión
+      navigate(`/pedido/${order.id}?clave=${encodeURIComponent(order.accessKey)}`, { replace: true });
     } catch (err) {
       setErrors(err.data?.details ?? {});
       setFormError(err.message);

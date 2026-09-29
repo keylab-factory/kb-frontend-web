@@ -1,4 +1,5 @@
-import { Link, useParams } from 'react-router';
+import { useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router';
 import { api } from '../api.js';
 import { useApi } from '../hooks/useApi.js';
 import { useSession } from '../auth/session.js';
@@ -6,12 +7,38 @@ import { ErrorState, OrderStatusBadge } from '../components/ui.jsx';
 import { CheckIcon } from '../components/icons.jsx';
 import { formatCOP, formatDate } from '../utils/format.js';
 
+// Enlace del pedido para guardar: sin sesión, es la única forma de volver a abrirlo
+function SaveLink() {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+    } catch {
+      // Sin permiso para el portapapeles: el enlace sigue en la barra de direcciones
+    }
+  }
+  return (
+    <div className="mx-auto mt-4 flex max-w-xl flex-wrap items-center justify-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-100">
+      <p>Guarda el enlace de esta página: con él consultas el estado y la guía de envío.</p>
+      <button type="button" className="btn btn-secondary text-sm" onClick={copy}>
+        {copied ? 'Enlace copiado' : 'Copiar enlace'}
+      </button>
+    </div>
+  );
+}
+
 export default function OrderConfirmation() {
   const { id } = useParams();
+  const [params] = useSearchParams();
+  const key = params.get('clave') ?? undefined;
   const session = useSession();
-  // Un pedido hecho con sesión solo se muestra con el token de su dueño: se espera a
-  // saber si hay sesión antes de pedirlo, o respondería "no encontrado"
-  const { data: order, loading, error, reload } = useApi(() => (session.loaded ? api.order(id) : new Promise(() => {})), [id, session.loaded, session.signedIn]);
+  // Un pedido hecho con sesión se muestra con el token de su dueño: se espera a saber si
+  // hay sesión antes de pedirlo, o respondería "no encontrado". Sin sesión, con la clave.
+  const { data: order, loading, error, reload } = useApi(
+    () => (session.loaded ? api.order(id, key) : new Promise(() => {})),
+    [id, key, session.loaded, session.signedIn],
+  );
 
   if (error) {
     return (
@@ -34,7 +61,7 @@ export default function OrderConfirmation() {
         <p className="mt-2 text-tone-400">
           Pedido <span className="font-mono font-semibold text-tone-200">{order.id}</span> · {formatDate(order.createdAt)}
         </p>
-        <p className="mt-1 text-sm text-tone-500">Guarda el número de pedido: con él consultas aquí su estado y la guía de envío.</p>
+        {session.signedIn ? <p className="mt-1 text-sm text-tone-500">Lo encuentras cuando quieras en Mi cuenta.</p> : key && <SaveLink />}
       </div>
 
       <section className="card mt-10 p-5 sm:p-6">

@@ -48,7 +48,8 @@ export const api = {
   orderConfig: () => request('/orders/config'),
   // Con sesión, el pedido queda asociado a la cuenta
   createOrder: (order) => request('/orders', send('POST', order)),
-  order: (id) => request(`/orders/${encodeURIComponent(id)}`, { auth: true }),
+  // Sin sesión, un pedido solo se abre con la clave que trae el enlace de confirmación
+  order: (id, key) => request(`/orders/${encodeURIComponent(id)}${query({ key })}`, { auth: true }),
   fx: () => request('/fx'),
   market: () => request('/market'),
   marketProducts: (params) => request(`/market/products${query(params)}`),
