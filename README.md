@@ -12,7 +12,7 @@ npm run dev      # http://localhost:5173; /api se reenvía al gateway en http://
 npm run build    # compila a dist/
 ```
 
-Necesita el backend corriendo (ver `kb-backend-services`). El frontend habla **solo con el API Gateway**, nunca con un microservicio directamente. Por eso no se enteró de la migración a microservicios: la API pública es la misma de V1.
+Necesita el backend corriendo: [`kb-backend-services`](https://github.com/keylab-factory/kb-backend-services), un repositorio privado de la organización. El frontend habla **solo con el API Gateway**, nunca con un microservicio directamente. Por eso no se enteró de la migración a microservicios: la API pública es la misma de V1.
 
 ## Variables de entorno
 

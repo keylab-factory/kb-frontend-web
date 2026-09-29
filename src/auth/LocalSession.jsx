@@ -4,7 +4,7 @@ import { CloseIcon } from '../components/icons.jsx';
 /**
  * Sesión local SOLO para desarrollo (VITE_AUTH_MODE=local).
  *
- * Reemplaza a Clerk mientras no haya cuenta: el emisor de backend-services/
+ * Reemplaza a Clerk mientras no haya cuenta: el emisor de kb-backend-services/
  * scripts/dev-auth.mjs firma JWT con la misma forma que los de Clerk y los
  * servicios los verifican igual, por firma. No hay contraseñas: cualquiera que
  * llegue a este emisor puede hacerse pasar por cualquier correo, por eso solo
@@ -82,7 +82,7 @@ export default function LocalSession({ onChange }) {
     try {
       res = await fetch(`${ISSUER}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(who) });
     } catch {
-      throw new Error('El emisor de sesiones local no responde. Arráncalo con: npm run dev:auth (en backend-services).');
+      throw new Error('El emisor de sesiones local no responde. Arráncalo con: npm run dev:auth (en kb-backend-services).');
     }
     const data = await res.json().catch(() => null);
     if (!res.ok) throw new Error(data?.error ?? `Error ${res.status}`);
